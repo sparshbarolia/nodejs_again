@@ -1,7 +1,5 @@
 const express = require("express")
-const fs = require("fs")
 const mongoose = require("mongoose");
-const users = require("./MOCK_DATA.json")
 
 const app = express();
 const PORT = 8000;
@@ -32,11 +30,13 @@ const userSchema = new mongoose.Schema({
     gender:{
         type: String,
     }
-})
+    },
+    {timestamps: true}  //har entry ke sath time stamp store hojaegi DB me
+);
 
-//MODEL
-//sparshusers naam ka DB bn jaega MONGO BASICS collection me
-const User = mongoose.model("sparshuser",userSchema);
+//                          MODEL
+//sparshusers naam ka collection bn jaega MONGO BASICS DB me
+const UserDB = mongoose.model("sparshuser",userSchema);
 
                             //MIDDLEWARES
 
@@ -44,64 +44,71 @@ const User = mongoose.model("sparshuser",userSchema);
 //form data ko body me dalega(post request ke liye use kia h)
 app.use(express.urlencoded({extended : false}));
 
-//CUSTOM MIDDLE WARE
-app.use((req,res,next) => {
-    res.setHeader("X-MyName","sparsh")
-    console.log("Hello from 1st custom middleware");
-    next();    //to call next middleware(server if no middleware are left)
-})
-
-app.use((req, res, next) => {
-    //append file then call next
-    fs.appendFile("./log.txt", `\n${Date.now()}:${req.method} ${req.path}`, (err, data) => {
-        next();
-    })
-})
-
 //ROUTES
+//TEST THESE REQUESTS IN POSTMAN
 
-app.get("/users" , (req,res) => {
+app.get("/users" , async (req,res) => {
+    const allDbUsers = await UserDB.find({});  //empty means sbhi data le aao
+
     const html = `
     <ul>
-        ${users.map((user) => `<li> ${user.first_name} </li>`).join("")}
+        ${allDbUsers.map((user) => `<li> ${user.firstName} - ${user.email} </li>`).join("")}
     </ul>
     `;
     res.send(html);
 })
 
-app.get("/api/users" , (req,res) => {
+app.get("/api/users" , async (req,res) => {
+    const allDbUsers = await UserDB.find({});
+
     //json data h to res.json likha
-    return res.json(users);
+    return res.json(allDbUsers);
 })
 
 
-app.get("/api/users/:id" , (req,res) => {
-    //extract id
-    const id = Number(req.params.id);
-    const user = users.find((user) => user.id === id);
-    return res.json(user);
+app.get("/api/users/:id" ,async (req,res) => {
+    const DbUserWithId = await UserDB.findById(req.params.id);
+    
+    return res.json(DbUserWithId);
 })
 
-app.post("/api/users" , (req,res) => {
+//async function bnadia ise
+//WE CAN TEST THIS REQUEST IN POSTMAN
+// link -> http://localhost:8000/api/users
+// method -> post
+// go to body -> x-www-form-urlencoded
+//and add first_name,last_name .... as keys and give values
+app.post("/api/users" ,async (req,res) => {
     //TODO -> create new user
     const body = req.body;
-    // console.log(body)
-    users.push({...body , id: users.length+1});
 
-    fs.writeFile("./MOCK_DATA.json" , JSON.stringify(users) , (err,data)=>{
-        return res.json({status:"success",
-                         id : users.length});
+    //new entry created in DB
+    await UserDB.create({
+        firstName: body.first_name,
+        lastName: body.last_name,
+        email: body.email,
+        gender: body.gender,
+        jobTitle: body.job_title,
     })
+
+    //ye status code and json msg POSTMAN pr dikhega
+    return res.status(201).json({msg : "success"});
 })
 
-app.patch("/api/users/:id" , (req,res) => {
-    //TOTO -> edit the user with id
-    return res.json({status: "pending"});
+app.patch("/api/users/:id" , async (req,res) => {
+    //TODO -> edit the user with id
+
+    //                            (<jis ID ko change krna> , <kya change krna usme>)
+    await UserDB.findByIdAndUpdate(req.params.id , {jobTitle: "switched"})
+
+    return res.json({status: "success"});
 })
 
-app.delete("/api/users/:id" , (req,res) => {
+app.delete("/api/users/:id" ,async (req,res) => {
     //TOTO -> delete the user with id
-    return res.json({status: "pending"});
+    await UserDB.findByIdAndDelete(req.params.id);
+
+    return res.json({status: "success"});
 })
 
 

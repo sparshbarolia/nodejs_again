@@ -1,0 +1,12 @@
+{
+  "name": "4_modules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "4_hello.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node 4_hello.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

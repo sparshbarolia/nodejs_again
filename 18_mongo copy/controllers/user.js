@@ -11,7 +11,14 @@ async function displayUsers(req,res){
     res.send(html);
 };
 
-async function getAllUsers(req,res){
+// async function getAllUsers(req,res){
+//     const allDbUsers = await UserDB.find({});
+
+//     //json data h to res.json likha
+//     return res.json(allDbUsers);
+// };
+
+const getAllUsers = async (req,res) => {
     const allDbUsers = await UserDB.find({});
 
     //json data h to res.json likha

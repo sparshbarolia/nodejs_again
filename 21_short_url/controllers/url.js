@@ -15,7 +15,8 @@ const handleGenerateNewShortURL = async (req,res) => {
         visitHistory: [],
     });
 
-    return res.json({id : shortID});
+    // return res.json({id : shortID});
+    return res.render('home',{id: shortID})  //id ko home page me locals.id naam se use kr skte
 }
 
 const handleGetAnalytics = async (req,res) => {
@@ -28,7 +29,26 @@ const handleGetAnalytics = async (req,res) => {
     })
 }
 
+const handleGetRedirectURL = async(req,res) => {
+    const shortId = req.params.shortId;
+    const entry = await URL.findOneAndUpdate( { shortId },
+        {
+            //$push is used to push in visitHistory array
+            //it is a mongoDB operator for findOneAndUpdate or update
+            $push: {visitHistory: {timestamp: Date.now()}}
+        }
+    )
+
+    if (entry && entry.redirectURL) {
+        res.redirect(entry.redirectURL);
+    } else {
+        // Handle the case when entry is not found or redirectURL is not available
+        res.status(404).send("URL not found");
+    }
+}
+
 module.exports = {
     handleGenerateNewShortURL,
     handleGetAnalytics,
+    handleGetRedirectURL,
 }

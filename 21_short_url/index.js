@@ -13,8 +13,8 @@ const PORT = 8001;
 //connecting to mongoDB(mongo basics -> urls)
 connectMongoDb('mongodb+srv://admin:admin@cluster0.77usmop.mongodb.net/?retryWrites=true&w=majority');
 
-app.set("view engine" , "ejs");
 //is line se hum btare h ki hmari ejs file views folder me h
+app.set("view engine" , "ejs");
 //is line ki yaha jarurat nhi qki hmare folder ka naam views h
 //jis se nodejs apne aap smjh jaega ki ejs files isme h
 app.set("views" , path.resolve("./views")) 

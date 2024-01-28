@@ -6,7 +6,7 @@ const handleGenerateNewShortURL = async (req,res) => {
 
     if(!body.url) return res.status(400).json({ "error": "url is required"});
 
-    //npm package that generates short if of len 8
+    //npm package that generates short id of len 8
     const shortID = shortid();
 
     await URL.create({

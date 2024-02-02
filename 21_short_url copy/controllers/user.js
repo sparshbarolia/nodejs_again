@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require('uuid');    //for generating user id
 const {setUser , getUser} = require('../service/auth')
 
 const handleUserSignup = async(req,res) => {
+    //ye body.name , body.email , body.password
+    //ye sb humne signup.ejs me form me define kia h
     const name = req.body.name;
     const email = req.body.email;
     const password = req.body.password;
